@@ -31,9 +31,9 @@ export function RequestInspector({ trace }: RequestInspectorProps) {
 function BodyBlock({ label, value }: { label: string; value: unknown }) {
   const text = value === undefined || value === null ? "—" : JSON.stringify(value, null, 2)
   return (
-    <div>
+    <div className="min-w-0">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted dark:text-night-muted">{label}</p>
-      <pre className="mt-1 overflow-x-auto rounded-md bg-paper px-3 py-2 font-mono text-xs dark:bg-night">{text}</pre>
+      <pre className="mt-1 max-w-full overflow-x-auto rounded-md bg-paper px-3 py-2 font-mono text-xs dark:bg-night">{text}</pre>
     </div>
   )
 }
@@ -51,14 +51,14 @@ function CopyBlock({ label, text }: { label: string; text: string }) {
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted dark:text-night-muted">{label}</p>
         <button type="button" className="text-xs font-semibold text-copper" onClick={() => void copy()}>
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="mt-1 overflow-x-auto rounded-md bg-paper px-3 py-2 font-mono text-xs dark:bg-night">{text}</pre>
+      <pre className="mt-1 max-w-full overflow-x-auto rounded-md bg-paper px-3 py-2 font-mono text-xs dark:bg-night">{text}</pre>
     </div>
   )
 }

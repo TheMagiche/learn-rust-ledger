@@ -52,7 +52,7 @@ function Shell() {
       <header className="border-b border-line bg-card/80 backdrop-blur dark:border-night-line dark:bg-night-card/80">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <a href="#/" className="font-serif text-3xl tracking-tight">
-            spend
+            Learn Rust by Spend
           </a>
           <nav className="flex flex-wrap items-center gap-1 text-sm font-semibold" aria-label="Primary">
             {NAV.map((item) => (

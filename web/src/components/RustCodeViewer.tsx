@@ -32,7 +32,7 @@ export function RustCodeViewer({ handler, onConcept }: RustCodeViewerProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid min-w-0 gap-4">
       {blocks.map((block) => (
         <SourceBlock key={block.name} name={block.name} file={block.file} startLine={block.startLine} code={block.code} onConcept={onConcept} />
       ))}
@@ -78,11 +78,11 @@ function SourceBlock({
   }, [code, theme])
 
   return (
-    <div>
+    <div className="min-w-0">
       <p className="font-mono text-xs text-muted dark:text-night-muted">
         {name} · {file}:{startLine}
       </p>
-      <div className="mt-1 overflow-x-auto rounded-md bg-[#f6f8fa] text-xs leading-5 dark:bg-[#0d1117]">
+      <div className="mt-1 max-w-full overflow-x-auto rounded-md bg-[#f6f8fa] text-xs leading-5 dark:bg-[#0d1117]">
         <pre className="min-w-max p-3 font-mono">
           {(tokens ?? lines.map((line) => [{ content: line, color: undefined, offset: 0 }])).map((line, index) => {
             const text = lines[index] ?? ""

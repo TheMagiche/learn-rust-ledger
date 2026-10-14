@@ -21,7 +21,7 @@ export function LearnPanel({ traces }: LearnPanelProps) {
   const trace = traces[index]
 
   return (
-    <aside id="learn" className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-auto">
+    <aside id="learn" className="min-w-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-auto">
       <div className="rounded-xl border border-line bg-card dark:border-night-line dark:bg-night-card">
         <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 dark:border-night-line">
           <div>
@@ -33,16 +33,16 @@ export function LearnPanel({ traces }: LearnPanelProps) {
           </button>
         </div>
         {open ? (
-          <div className="grid gap-4 p-4">
+          <div className="grid min-w-0 gap-4 p-4">
             {trace ? (
               <>
                 <RequestInspector trace={trace} />
-                <div>
+                <div className="min-w-0">
                   <h3 className="font-serif text-xl">Handler</h3>
                   <p className="text-xs font-mono text-muted dark:text-night-muted">
                     X-Rust-Handler: {trace.handler ?? "—"}
                   </p>
-                  <div className="mt-2">
+                  <div className="mt-2 min-w-0">
                     <RustCodeViewer handler={trace.handler} onConcept={setFocusedConcept} />
                   </div>
                 </div>

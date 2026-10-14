@@ -23,6 +23,12 @@
   --color-night-soft: #2a2420;
 }
 
+pre,
+figure {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 html {
   color-scheme: light;
 }

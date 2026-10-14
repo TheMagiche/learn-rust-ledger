@@ -37,10 +37,10 @@ export function CategoryChart({ rows }: CategoryChartProps) {
   }
 
   return (
-    <section className="rounded-xl border border-line bg-card p-4 dark:border-night-line dark:bg-night-card">
+    <section className="min-w-0 rounded-xl border border-line bg-card p-4 dark:border-night-line dark:bg-night-card">
       <h2 className="font-serif text-2xl">By category</h2>
-      <div className="mt-2 grid gap-2 md:grid-cols-2">
-        <div className="h-56">
+      <div className="mt-2 grid min-w-0 gap-2 md:grid-cols-2">
+        <div className="h-56 min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie data={data} dataKey="major" nameKey="category" innerRadius={42} outerRadius={72} paddingAngle={2}>
@@ -52,7 +52,7 @@ export function CategoryChart({ rows }: CategoryChartProps) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="h-56">
+        <div className="h-56 min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <XAxis dataKey="category" tick={{ fill: axis, fontSize: 12 }} />
