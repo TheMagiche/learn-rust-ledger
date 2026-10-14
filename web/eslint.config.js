@@ -5,7 +5,7 @@ import globals from "globals"
 import tseslint from "typescript-eslint"
 
 export default tseslint.config(
-  { ignores: ["dist", "src/learn/rustSources.ts", "src/learn/usedIn.ts"] },
+  { ignores: ["dist", "src/wasm/**", "src/learn/rustSources.ts", "src/learn/usedIn.ts"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

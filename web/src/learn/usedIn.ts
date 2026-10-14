@@ -136,5 +136,8 @@ export const usedInByConcept: Record<string, string[]> = {
   ],
   "vec": [
     "crates/core/src/ledger.rs:58"
+  ],
+  "wasm": [
+    "crates/wasm/src/lib.rs:3"
   ]
 }

@@ -1,5 +1,6 @@
 import { errorMessage } from "../lib/guards"
 import type { Trace } from "../types"
+import { wasmRequest } from "./wasm"
 
 export class ApiRequestError extends Error {
   trace: Trace
@@ -36,6 +37,11 @@ export async function apiRequest<T>(options: {
   body?: unknown
   signal?: AbortSignal
 }): Promise<{ data: T; trace: Trace }> {
+  // On GitHub Pages or static builds, always execute directly via the Rust WebAssembly engine.
+  if (import.meta.env.VITE_PAGES === "true") {
+    return apiRequestWasm<T>(options)
+  }
+
   const headers: Record<string, string> = {}
   let payload: string | undefined
   if (options.body !== undefined) {
@@ -56,9 +62,14 @@ export async function apiRequest<T>(options: {
     if (isAbort(error)) {
       throw error
     }
-    const trace = buildTrace(options, 0, started, null, null, null)
-    const message = error instanceof Error ? error.message : "network error"
-    throw new ApiRequestError(message, trace)
+    // If running in development and the server is not up or in offline/fallback mode, try Wasm.
+    try {
+      return await apiRequestWasm<T>(options)
+    } catch {
+      const trace = buildTrace(options, 0, started, null, null, null)
+      const message = error instanceof Error ? error.message : "network error"
+      throw new ApiRequestError(message, trace)
+    }
   }
 
   const raw = await response.text()
@@ -85,6 +96,34 @@ export async function apiRequest<T>(options: {
   }
 
   return { data: responseBody as T, trace }
+}
+
+async function apiRequestWasm<T>(options: {
+  method: string
+  url: string
+  body?: unknown
+  signal?: AbortSignal
+}): Promise<{ data: T; trace: Trace }> {
+  const started = performance.now()
+  const wasmRes = await wasmRequest<T>(options)
+  const durationMs = Math.max(0, Math.round(performance.now() - started))
+
+  const trace: Trace = {
+    method: options.method,
+    url: options.url,
+    requestBody: options.body,
+    status: wasmRes.status,
+    durationMs,
+    responseBody: wasmRes.data,
+    handler: wasmRes.handler,
+    concepts: wasmRes.concepts,
+  }
+
+  if (wasmRes.status < 200 || wasmRes.status >= 300) {
+    throw new ApiRequestError(errorMessage(wasmRes.data, `request failed (${wasmRes.status})`), trace)
+  }
+
+  return { data: wasmRes.data, trace }
 }
 
 function buildTrace(

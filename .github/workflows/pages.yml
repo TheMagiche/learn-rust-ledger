@@ -32,14 +32,23 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
 
-      - name: Build web
-        working-directory: web
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build Wasm and web
         env:
           VITE_BASE: ${{ steps.pages.outputs.base_path }}/
           VITE_PAGES: "true"
         run: |
-          npm ci
-          npm run build
+          cargo run -p gen-sources --quiet
+          wasm-pack build crates/wasm --target web --out-dir ../../web/src/wasm
+          npm --prefix web ci
+          npm --prefix web run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -2,6 +2,7 @@
 **/*.rs.bk
 web/node_modules
 web/dist
+web/src/wasm
 web/tsconfig.tsbuildinfo
 .DS_Store
 *.tmp

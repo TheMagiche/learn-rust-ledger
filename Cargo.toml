@@ -5,6 +5,7 @@ members = [
     "crates/store",
     "crates/api",
     "crates/cli",
+    "crates/wasm",
     "tools/gen-sources",
 ]
 default-members = ["crates/cli"]

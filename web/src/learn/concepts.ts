@@ -412,6 +412,16 @@ const definitions = [
     bookLink: "https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-types",
     exampleLink: "https://doc.rust-lang.org/rust-by-example/primitives/literals.html",
   },
+  {
+    id: "wasm",
+    title: "WebAssembly",
+    summary: "Rust compiles directly to Wasm bytecode that runs in the browser.",
+    explanation:
+      "wasm-bindgen exposes Rust data structures and functions to JavaScript. The browser instantiates the Wasm module, and client requests route through the in-memory Rust ledger without needing a server backend.",
+    example: "#[wasm_bindgen]\npub fn handle_request(method: &str, url: &str, body: Option<String>) -> Result<JsValue, JsValue> { /* ... */ }",
+    bookLink: "https://rustwasm.github.io/docs/book/",
+    exampleLink: "https://wasm-bindgen.github.io/wasm-bindgen/",
+  },
 ] as const
 
 export const concepts: Concept[] = definitions.map((concept) => ({

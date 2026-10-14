@@ -6,8 +6,6 @@ import { currentMonth } from "../lib/dates"
 import type { Expense, Filters, NewExpenseInput, Summary, Trace } from "../types"
 
 const TRACE_LIMIT = 20
-const pagesBuild = import.meta.env.VITE_PAGES === "true"
-const pagesMessage = "This GitHub Page does not run the Rust API. Use make dev locally to record expenses."
 
 export function pushTraces(current: Trace[], incoming: Trace[]): Trace[] {
   return [...incoming, ...current].slice(0, TRACE_LIMIT)
@@ -35,13 +33,6 @@ export function useExpenses() {
 
   const refresh = useCallback(
     async (next: Filters, signal?: AbortSignal) => {
-      if (pagesBuild) {
-        setLoading(false)
-        setRefreshing(false)
-        setError(null)
-        loadedOnce.current = true
-        return
-      }
       const id = requestId.current + 1
       requestId.current = id
       if (loadedOnce.current) {
@@ -98,10 +89,6 @@ export function useExpenses() {
 
   const addExpense = useCallback(
     async (input: NewExpenseInput) => {
-      if (pagesBuild) {
-        setError(pagesMessage)
-        return false
-      }
       setSaving(true)
       setError(null)
       try {
@@ -142,10 +129,6 @@ export function useExpenses() {
 
   const removeExpense = useCallback(
     async (id: number) => {
-      if (pagesBuild) {
-        setError(pagesMessage)
-        return false
-      }
       setSaving(true)
       setError(null)
       try {
@@ -171,10 +154,6 @@ export function useExpenses() {
 
   const setBudget = useCallback(
     async (category: string, amount: string) => {
-      if (pagesBuild) {
-        setError(pagesMessage)
-        return false
-      }
       setSaving(true)
       setError(null)
       try {
