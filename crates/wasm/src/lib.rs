@@ -115,7 +115,9 @@ impl WasmEngine {
         body: Option<String>,
     ) -> Result<JsValue, JsValue> {
         let response = self.route(method, url, body.as_deref());
-        serde_wasm_bindgen::to_value(&response)
+        let serializer = serde_wasm_bindgen::Serializer::json_compatible();
+        response
+            .serialize(&serializer)
             .map_err(|err| JsValue::from_str(&format!("serialization error: {err}")))
     }
 
