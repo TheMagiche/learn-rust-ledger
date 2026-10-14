@@ -15,6 +15,7 @@ use spend_core::{
 };
 use wasm_bindgen::prelude::*;
 
+#[allow(dead_code)]
 const STORAGE_KEY: &str = "spend.ledger";
 
 thread_local! {
@@ -133,11 +134,7 @@ impl Default for WasmEngine {
 }
 
 #[wasm_bindgen]
-pub fn handle_request(
-    method: &str,
-    url: &str,
-    body: Option<String>,
-) -> Result<JsValue, JsValue> {
+pub fn handle_request(method: &str, url: &str, body: Option<String>) -> Result<JsValue, JsValue> {
     ENGINE.with(|engine| {
         let mut engine = engine.borrow_mut();
         engine.handle_request(method, url, body)
@@ -168,7 +165,14 @@ impl WasmEngine {
         if method == "GET" && path == "/api/expenses" {
             let filter = match filter_from_query(&query) {
                 Ok(f) => f,
-                Err(err) => return error_response("list_expenses", &["borrowing", "iterators", "closures", "serde"], 400, &err),
+                Err(err) => {
+                    return error_response(
+                        "list_expenses",
+                        &["borrowing", "iterators", "closures", "serde"],
+                        400,
+                        &err,
+                    )
+                }
             };
             let rows: Vec<ExpenseJson> = self
                 .ledger
@@ -285,11 +289,17 @@ impl WasmEngine {
                                 data: serde_json::Value::Null,
                             }
                         }
-                        Err(err) => error_response("delete_expense", &concepts, 404, &err.to_string()),
+                        Err(err) => {
+                            error_response("delete_expense", &concepts, 404, &err.to_string())
+                        }
                     };
                 }
             } else if method == "GET" || method == "DELETE" {
-                let handler = if method == "GET" { "get_expense" } else { "delete_expense" };
+                let handler = if method == "GET" {
+                    "get_expense"
+                } else {
+                    "delete_expense"
+                };
                 let concepts = if method == "GET" {
                     &["option", "borrowing"][..]
                 } else {
@@ -346,7 +356,9 @@ impl WasmEngine {
             let concepts = ["hashmap", "newtype", "integer-money"];
             let category_text = match path.strip_prefix("/api/budgets/") {
                 Some(rest) if !rest.is_empty() && !rest.contains('/') => rest,
-                _ => return error_response("set_budget", &concepts, 400, "invalid budget category"),
+                _ => {
+                    return error_response("set_budget", &concepts, 400, "invalid budget category")
+                }
             };
             let category = match Category::from_str(category_text.trim()) {
                 Ok(c) => c,
@@ -371,7 +383,9 @@ impl WasmEngine {
             let month = match query.get("month") {
                 Some(value) if !value.trim().is_empty() => match parse_user_month(value) {
                     Ok(m) => m,
-                    Err(err) => return error_response("set_budget", &concepts, 400, &err.to_string()),
+                    Err(err) => {
+                        return error_response("set_budget", &concepts, 400, &err.to_string())
+                    }
                 },
                 _ => current_month(),
             };
@@ -474,14 +488,21 @@ fn current_month() -> String {
 
 fn filter_from_query(query: &HashMap<String, String>) -> Result<Filter, String> {
     let category = match query.get("category") {
-        Some(value) if !value.trim().is_empty() => Some(Category::from_str(value).map_err(|e| e.to_string())?),
+        Some(value) if !value.trim().is_empty() => {
+            Some(Category::from_str(value).map_err(|e| e.to_string())?)
+        }
         _ => None,
     };
     let month = match query.get("month") {
-        Some(value) if !value.trim().is_empty() => Some(parse_user_month(value).map_err(|e| e.to_string())?),
+        Some(value) if !value.trim().is_empty() => {
+            Some(parse_user_month(value).map_err(|e| e.to_string())?)
+        }
         _ => None,
     };
-    let search = query.get("search").cloned().filter(|v| !v.trim().is_empty());
+    let search = query
+        .get("search")
+        .cloned()
+        .filter(|v| !v.trim().is_empty());
     Ok(Filter {
         category,
         month,
@@ -522,7 +543,9 @@ fn urlencoding_decode(s: &str) -> String {
             let h1 = chars.next();
             let h2 = chars.next();
             if let (Some(h1), Some(h2)) = (h1, h2) {
-                if let Ok(byte) = u8::from_str_radix(std::str::from_utf8(&[h1, h2]).unwrap_or(""), 16) {
+                if let Ok(byte) =
+                    u8::from_str_radix(std::str::from_utf8(&[h1, h2]).unwrap_or(""), 16)
+                {
                     bytes.push(byte);
                     continue;
                 }
@@ -616,7 +639,11 @@ mod tests {
         assert_eq!(res.data["total"]["display"], "12.50");
 
         // Set budget
-        let res = engine.route("PUT", "/api/budgets/food?month=2026-10", Some(r#"{"amount":"150.00"}"#));
+        let res = engine.route(
+            "PUT",
+            "/api/budgets/food?month=2026-10",
+            Some(r#"{"amount":"150.00"}"#),
+        );
         assert_eq!(res.status, 200);
         assert_eq!(res.handler, "set_budget");
         assert_eq!(res.data["budget"]["display"], "150.00");
