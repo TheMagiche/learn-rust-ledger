@@ -78,6 +78,14 @@ function Shell() {
           </nav>
         </div>
       </header>
+      {import.meta.env.VITE_PAGES === "true" ? (
+        <p className="border-b border-line bg-copper-soft px-4 py-3 text-sm text-ink dark:border-night-line dark:bg-night-soft dark:text-night-ink">
+          <span className="mx-auto block max-w-6xl">
+            This is the static UI. Lessons, the glossary, and compiler errors run in the browser. Recording expenses
+            needs the Rust API from <code className="font-mono">make dev</code>.
+          </span>
+        </p>
+      ) : null}
       <main className="mx-auto max-w-6xl px-4 py-6">
         {page === "app" ? <Home /> : null}
         {page === "lessons" ? <Lessons /> : null}
