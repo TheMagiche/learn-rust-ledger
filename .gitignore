@@ -1,0 +1,9 @@
+/target
+**/*.rs.bk
+web/node_modules
+web/dist
+web/tsconfig.tsbuildinfo
+.DS_Store
+*.tmp
+.spend.json
+/uploads/

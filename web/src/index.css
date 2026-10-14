@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Source Sans 3", "Segoe UI", sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-paper: #f3eee4;
+  --color-card: #fffaf3;
+  --color-ink: #1d1a16;
+  --color-muted: #6d645b;
+  --color-line: #e3d7c6;
+  --color-copper: #c4562a;
+  --color-copper-soft: #f3d7c8;
+  --color-pine: #1d6a52;
+  --color-danger: #a33b32;
+  --color-night: #121110;
+  --color-night-card: #1d1b18;
+  --color-night-ink: #f4efe6;
+  --color-night-muted: #b7ada2;
+  --color-night-line: #34302b;
+  --color-night-soft: #2a2420;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(900px 420px at 100% -10%, rgba(29, 106, 82, 0.08), transparent 45%),
+    var(--color-paper);
+  color: var(--color-ink);
+}
+
+html.dark body {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(196, 86, 42, 0.16), transparent 50%),
+    var(--color-night);
+  color: var(--color-night-ink);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: #e7c2ae;
+}

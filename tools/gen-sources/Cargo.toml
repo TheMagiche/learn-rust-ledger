@@ -1,0 +1,11 @@
+[package]
+name = "gen-sources"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Extract Rust handlers and ledger methods into the teaching UI."
+
+[dependencies]
+serde_json = { workspace = true }
+syn = { workspace = true }

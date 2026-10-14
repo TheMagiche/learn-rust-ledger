@@ -1,0 +1,82 @@
+[
+  {
+    "id": "e0382",
+    "code": "E0382",
+    "title": "Use after move",
+    "concepts": ["ownership", "move"],
+    "broken": "fn main() {\n    let note = String::from(\"lunch\");\n    let moved = note;\n    println!(\"{note} {moved}\");\n}\n",
+    "rustc": "error[E0382]: borrow of moved value: `note`\n --> example.rs:4:15\n  |\n2 |     let note = String::from(\"lunch\");\n  |         ---- move occurs because `note` has type `String`, which does not implement the `Copy` trait\n3 |     let moved = note;\n  |                 ---- value moved here\n4 |     println!(\"{note} {moved}\");\n  |               ^^^^^^ value borrowed here after move\n  |\nhelp: consider cloning the value if the performance cost is acceptable\n  |\n3 |     let moved = note.clone();\n  |                     ++++++++",
+    "explanation": "A String owns its bytes. Assigning it to `moved` moves that ownership. `note` is empty afterward, so printing it is a use after move. `i32` would still work because it is `Copy` and the assignment copies the bits.",
+    "fix": "fn main() {\n    let note = String::from(\"lunch\");\n    let moved = note.clone();\n    println!(\"{note} {moved}\");\n}\n"
+  },
+  {
+    "id": "e0499",
+    "code": "E0499",
+    "title": "Two mutable borrows",
+    "concepts": ["mut-borrow", "borrowing"],
+    "broken": "fn main() {\n    let mut expenses = Vec::new();\n    let first = &mut expenses;\n    let second = &mut expenses;\n    first.push(1);\n    second.push(2);\n}\n",
+    "rustc": "error[E0499]: cannot borrow `expenses` as mutable more than once at a time\n --> example.rs:4:18\n  |\n3 |     let first = &mut expenses;\n  |                 ------------- first mutable borrow occurs here\n4 |     let second = &mut expenses;\n  |                  ^^^^^^^^^^^^^ second mutable borrow occurs here\n5 |     first.push(1);\n  |     ----- first borrow later used here",
+    "explanation": "`&mut` means exclusive access. Two mutable borrows at the same time could both change the vector, so the compiler stops you. Finish with the first borrow, then take the second.",
+    "fix": "fn main() {\n    let mut expenses = Vec::new();\n    {\n        let first = &mut expenses;\n        first.push(1);\n    }\n    let second = &mut expenses;\n    second.push(2);\n    println!(\"{expenses:?}\");\n}\n"
+  },
+  {
+    "id": "e0502",
+    "code": "E0502",
+    "title": "Mutable borrow during a shared borrow",
+    "concepts": ["borrowing", "mut-borrow"],
+    "broken": "fn main() {\n    let mut expenses = Vec::new();\n    let view = &expenses;\n    expenses.push(1);\n    println!(\"{view:?}\");\n}\n",
+    "rustc": "error[E0502]: cannot borrow `expenses` as mutable because it is also borrowed as immutable\n --> example.rs:4:5\n  |\n3 |     let view = &expenses;\n  |                --------- immutable borrow occurs here\n4 |     expenses.push(1);\n  |     ^^^^^^^^^^^^^^^^ mutable borrow occurs here\n5 |     println!(\"{view:?}\");\n  |               -------- immutable borrow later used here",
+    "explanation": "`view` is a shared borrow: it promises the vector will not change while it exists. `push` needs a mutable borrow. Using `view` afterward means the shared borrow is still alive, so the push is rejected. Read first, then mutate.",
+    "fix": "fn main() {\n    let mut expenses = Vec::new();\n    {\n        let view = &expenses;\n        println!(\"{view:?}\");\n    }\n    expenses.push(1);\n}\n"
+  },
+  {
+    "id": "e0308",
+    "code": "E0308",
+    "title": "Mismatched types",
+    "concepts": ["integer-money"],
+    "broken": "fn main() {\n    let amount: u64 = \"12.50\";\n    println!(\"{amount}\");\n}\n",
+    "rustc": "error[E0308]: mismatched types\n --> example.rs:2:23\n  |\n2 |     let amount: u64 = \"12.50\";\n  |                 ---   ^^^^^^^ expected `u64`, found `&str`\n  |                 |\n  |                 expected due to this",
+    "explanation": "\"12.50\" is text, a `&str`. A `u64` is an integer. Rust will not guess that you wanted cents. Parse the text, or store the minor units as a number from the start. This project parses the string into `Money` so the float never appears.",
+    "fix": "fn main() {\n    let amount_text: &str = \"12.50\";\n    let cents: u64 = 1250;\n    println!(\"{amount_text} is {cents} cents\");\n}\n"
+  },
+  {
+    "id": "e0277",
+    "code": "E0277",
+    "title": "Trait not implemented",
+    "concepts": ["traits", "from-into"],
+    "broken": "fn main() {\n    let cents: u64 = 1250;\n    let display: String = cents.into();\n    println!(\"{display}\");\n}\n",
+    "rustc": "error[E0277]: the trait bound `String: From<u64>` is not satisfied\n --> example.rs:3:33\n  |\n3 |     let display: String = cents.into();\n  |                                 ^^^^ the trait `From<u64>` is not implemented for `String`, which is required by `u64: Into<_>`\n  |\n  = note: required for `u64` to implement `Into<String>`",
+    "explanation": "`into()` only works when a `From` implementation exists for that pair of types. `String` implements `From<&str>`, not `From<u64>`. Numbers become text through `format!` or `Display`, which is what `Money` uses.",
+    "fix": "fn main() {\n    let cents: u64 = 1250;\n    let display: String = format!(\"{cents}\");\n    println!(\"{display}\");\n}\n"
+  },
+  {
+    "id": "e0599",
+    "code": "E0599",
+    "title": "Method not found",
+    "concepts": ["impl-blocks", "newtype"],
+    "broken": "struct Money(u64);\n\nfn main() {\n    let money = Money(1250);\n    println!(\"{}\", money.as_dollars());\n}\n",
+    "rustc": "error[E0599]: no method named `as_dollars` found for struct `Money` in the current scope\n --> example.rs:5:26\n  |\n1 | struct Money(u64);\n  | ------------ method `as_dollars` not found for this struct\n...\n5 |     println!(\"{}\", money.as_dollars());\n  |                          ^^^^^^^^^^ method not found in `Money`",
+    "explanation": "Methods come from `impl` blocks. `Money` has no `as_dollars` method, so the call is a typo or a method you still need to write. The compiler lists the type so you can see where to add the `impl`.",
+    "fix": "struct Money(u64);\n\nimpl Money {\n    fn as_cents(&self) -> u64 {\n        self.0\n    }\n}\n\nfn main() {\n    let money = Money(1250);\n    println!(\"{}\", money.as_cents());\n}\n"
+  },
+  {
+    "id": "e0106",
+    "code": "E0106",
+    "title": "Missing lifetime",
+    "concepts": ["borrowing"],
+    "broken": "struct Expense {\n    note: &str,\n}\n\nfn main() {\n    let _expense = Expense { note: \"lunch\" };\n}\n",
+    "rustc": "error[E0106]: missing lifetime specifier\n --> example.rs:2:11\n  |\n2 |     note: &str,\n  |           ^ expected named lifetime parameter\n  |\nhelp: consider introducing a named lifetime parameter\n  |\n1 ~ struct Expense<'a> {\n2 ~     note: &'a str,\n  |",
+    "explanation": "A reference inside a struct has to say how long it stays valid. Without a lifetime, the struct could outlive the text it points at. Naming the lifetime `'a` ties the struct to that borrow. Owned data (`String`) needs no lifetime, which is why the ledger stores notes as `Option<String>`.",
+    "fix": "struct Expense<'a> {\n    note: &'a str,\n}\n\nfn main() {\n    let _expense = Expense { note: \"lunch\" };\n}\n"
+  },
+  {
+    "id": "unused-result",
+    "code": "unused_must_use",
+    "title": "Unused Result",
+    "concepts": ["result", "question-mark"],
+    "broken": "fn main() {\n    std::fs::remove_file(\"this-file-is-not-created.txt\");\n}\n",
+    "rustc": "warning: unused `Result` that must be used\n --> example.rs:2:5\n  |\n2 |     std::fs::remove_file(\"this-file-is-not-created.txt\");\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |\n  = note: this `Result` may be an `Err` variant, which should be handled\n  = note: `#[warn(unused_must_use)]` on by default\nhelp: use `let _ = ...` to ignore the resulting value\n  |\n2 |     let _ = std::fs::remove_file(\"this-file-is-not-created.txt\");\n  |     +++++++",
+    "explanation": "`remove_file` returns a `Result` because the file might not exist. Ignoring that value hides the failure. Handle it with `?` in a function that returns `Result`, or match on it. `let _ =` silences the warning only when you truly mean to ignore the error. The `spend` CLI prints `error: ...` instead of dropping the `Result`.",
+    "fix": "fn main() {\n    if let Err(err) = std::fs::remove_file(\"this-file-is-not-created.txt\") {\n        eprintln!(\"error: {err}\");\n    }\n}\n"
+  }
+]

@@ -1,0 +1,25 @@
+[package]
+name = "spend"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Track expenses from the terminal or the browser."
+
+[[bin]]
+name = "spend"
+path = "src/main.rs"
+
+[dependencies]
+chrono = { workspace = true }
+clap = { workspace = true }
+spend-api = { path = "../api" }
+spend-core = { path = "../core" }
+spend-store = { path = "../store" }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

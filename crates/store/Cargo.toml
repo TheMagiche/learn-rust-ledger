@@ -1,0 +1,17 @@
+[package]
+name = "spend-store"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Load and save a spend ledger as pretty JSON."
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+spend-core = { path = "../core" }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+chrono = { workspace = true }
+tempfile = { workspace = true }
